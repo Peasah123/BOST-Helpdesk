@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BOST-KSI IT Help Desk</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════
+       SIDEBAR NAVIGATION
+  ════════════════════════════════════════════════ -->
+ <nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-box">
+    <img src="images/Bost_energies_logo.png" alt="BOST Energies" />
+    </div>
+    <span>IT Help Desk</span>
+  </div>
+
+    <div class="nav-menu">
+      <div class="nav-item active" onclick="navigate('dashboard')" id="nav-dashboard">
+        <span class="nav-icon">🏠</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="navigate('new')" id="nav-new">
+        <span class="nav-icon">➕</span> New
+      </div>
+      <div class="nav-item" onclick="navigate('tickets')" id="nav-tickets">
+        <span class="nav-icon">📋</span> Tickets
+      </div>
+      <div class="nav-item" onclick="navigate('reports')" id="nav-reports">
+        <span class="nav-icon">📊</span> Reports
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════
+       MAIN CONTENT AREA
+  ════════════════════════════════════════════════ -->
+  <div id="main">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <h1 id="topbar-title">BOST-KSI IT HELP DESK</h1>
+      <div class="topbar-actions">
+        <button class="btn btn-outline" onclick="refreshAll()">Refresh</button>
+        <button class="btn btn-primary" onclick="navigate('tickets')">View Tickets</button>
+      </div>
+    </div>
+
+    <!-- Page Content -->
+    <div id="content">
+
+      <!-- ── DASHBOARD ─────────────────────────────── -->
+      <div id="view-dashboard" class="view active">
+        <div class="stat-cards">
+          <div class="stat-card card-blue">
+            <div class="label">Total</div>
+            <div class="value" id="stat-total">0</div>
+          </div>
+          <div class="stat-card card-green">
+            <div class="label">Resolved</div>
+            <div class="value" id="stat-resolved">0</div>
+          </div>
+          <div class="stat-card card-orange">
+            <div class="label">Pending</div>
+            <div class="value" id="stat-pending">0</div>
+          </div>
+          <div class="stat-card card-red">
+            <div class="label">Incomplete</div>
+            <div class="value" id="stat-incomplete">0</div>
+          </div>
+          <div class="stat-card card-indigo">
+            <div class="label">Today</div>
+            <div class="value" id="stat-today">0</div>
+          </div>
+        </div>
+        <div class="charts-row">
+          <div class="chart-card">
+            <h3>Status Distribution</h3>
+            <canvas id="statusChart" height="200"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>Tickets by Date</h3>
+            <canvas id="dateChart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── NEW TICKET ─────────────────────────────── -->
+      <div id="view-new" class="view">
+        <div class="form-card">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="f-date" />
+            </div>
+            <div class="form-group">
+              <label>Time</label>
+              <input type="time" id="f-time" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Reporter</label>
+              <input type="text" id="f-reporter" placeholder="Name" />
+            </div>
+            <div class="form-group">
+              <label>Department</label>
+              <select id="f-dept">
+                <option value="">Select</option>
+                <option>IT</option>
+                <option>TNT</option>
+                <option>HR</option>
+                <option>Loading</option>
+                <option>F&F</option>
+                <option>Safety</option>
+                <option>Discharge</option>
+                <option>Maintenance</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Priority</label>
+              <select id="f-priority">
+                <option value="">Select</option>
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Assigned To</label>
+              <input type="text" id="f-assigned" placeholder="Technician" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1">
+              <label>Issue</label>
+              <textarea id="f-issue" placeholder="Describe the issue"></textarea>
+            </div>
+          </div>
+          <div class="form-submit">
+            <button class="btn btn-teal" onclick="submitTicket()">Submit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TICKETS ─────────────────────────────────── -->
+      <div id="view-tickets" class="view">
+        <div class="search-bar-row">
+          <input type="text" id="search-input" placeholder="Search tickets..." oninput="renderTickets()" />
+          <button class="btn btn-outline" onclick="renderTickets()">Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Reporter</th>
+                <th>Dept</th>
+                <th>Issue</th>
+                <th>Resolution</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Assigned</th>
+                <th>Time Resolved</th>
+                <th>Comments</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tickets-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── REPORTS ─────────────────────────────────── -->
+      <div id="view-reports" class="view">
+        <div class="reports-card">
+          <h3>📊 Generate Report</h3>
+          <div class="reports-form">
+            <div class="form-group">
+              <label>From</label>
+              <input type="date" id="r-from" />
+            </div>
+            <div class="form-group">
+              <label>To</label>
+              <input type="date" id="r-to" />
+            </div>
+            <button class="btn btn-teal" onclick="generateReport()">Generate</button>
+          </div>
+          <div id="report-result"></div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+
+  <!-- ═══════════════════════════════════════════════
+       QUICK EDIT MODAL
+  ════════════════════════════════════════════════ -->
+  <div class="modal-overlay hidden" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>✏️ Quick Edit</h2>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="m-id" />
+        <div class="form-group">
+          <label>Issue (original)</label>
+          <textarea id="m-issue" rows="3" readonly style="background:#f7f9fc"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Assigned To</label>
+            <input type="text" id="m-assigned" />
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="m-status">
+              <option>Pending</option>
+              <option>Resolved</option>
+              <option>Incomplete</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Resolution</label>
+          <textarea id="m-resolution" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Time Resolved</label>
+          <div class="mark-resolved-row">
+            <input type="datetime-local" id="m-time-resolved" />
+            <button class="btn btn-teal" style="white-space:nowrap" onclick="markResolved()">Mark Resolved</button>
+            <button class="btn btn-outline" onclick="clearResolved()">Clear</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Comments</label>
+          <textarea id="m-comments" rows="2" placeholder="Extra notes"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-teal" onclick="saveEdit()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast"></div>
+
+  <!-- Footer -->
+  <div class="footer">© 2026 BOST KSI-IT Help Desk System</div>
+
+  <!-- JavaScript Modules -->
+  <script src="js/db.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/tickets.js"></script>
+  <script src="js/reports.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
