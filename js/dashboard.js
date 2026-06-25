@@ -1,22 +1,14 @@
 /* ═══════════════════════════════════════════════════════
    BOST-KSI IT HELP DESK — js/dashboard.js
-   Dashboard: stat cards + Chart.js charts
    ═══════════════════════════════════════════════════════ */
 
 let statusChartInst = null;
 let dateChartInst   = null;
 
-/**
- * Render the dashboard view:
- * - Updates all stat cards
- * - Redraws Status Distribution donut
- * - Redraws Tickets by Date bar chart
- */
-function renderDashboard() {
-  const tickets = dbLoad();
+async function renderDashboard() {
+  const tickets = await getAllTickets();
   const today   = new Date().toISOString().slice(0, 10);
 
-  // ── Stat Counts ──────────────────────────────────────
   const total      = tickets.length;
   const resolved   = tickets.filter(t => t.status === 'Resolved').length;
   const pending    = tickets.filter(t => t.status === 'Pending').length;
@@ -29,9 +21,7 @@ function renderDashboard() {
   document.getElementById('stat-incomplete').textContent = incomplete;
   document.getElementById('stat-today').textContent      = todayCount;
 
-  // ── Status Distribution Donut ─────────────────────────
   if (statusChartInst) statusChartInst.destroy();
-
   statusChartInst = new Chart(document.getElementById('statusChart'), {
     type: 'doughnut',
     data: {
@@ -42,18 +32,10 @@ function renderDashboard() {
         borderWidth: 0
       }]
     },
-    options: {
-      plugins: {
-        legend: { position: 'right' }
-      },
-      cutout: '60%'
-    }
+    options: { plugins: { legend: { position: 'right' } }, cutout: '60%' }
   });
 
-  // ── Tickets by Date (last 7 days) Bar Chart ───────────
-  const days   = [];
-  const counts = [];
-
+  const days = [], counts = [];
   for (let i = 6; i >= 0; i--) {
     const d  = new Date();
     d.setDate(d.getDate() - i);
@@ -63,7 +45,6 @@ function renderDashboard() {
   }
 
   if (dateChartInst) dateChartInst.destroy();
-
   dateChartInst = new Chart(document.getElementById('dateChart'), {
     type: 'bar',
     data: {
@@ -76,12 +57,8 @@ function renderDashboard() {
       }]
     },
     options: {
-      plugins: {
-        legend: { display: true, position: 'top' }
-      },
-      scales: {
-        y: { beginAtZero: true, ticks: { stepSize: 1 } }
-      }
+      plugins: { legend: { display: true, position: 'top' } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
     }
   });
 }
