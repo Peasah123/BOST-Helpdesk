@@ -1,7 +1,3 @@
-/* ═══════════════════════════════════════════════════════
-   BOST-KSI IT HELP DESK — js/dashboard.js
-   ═══════════════════════════════════════════════════════ */
-
 let statusChartInst = null;
 let dateChartInst   = null;
 
